@@ -1,14 +1,10 @@
 const sha256 = require('crypto-js/sha256');
+const EC = require('elliptic').ec;
+const ec = EC('secp256k1');
+const { Transaction } = require('./transaction');
 
-class Transaction {
-  constructor(from, to, amount) {
-    this.from = from;
-    this.to = to;
-    this.amount = amount;
-  }
-}
 
-class  Block {
+class Block {
   constructor(timestamp, transaction, prevHash = '') {
     this.prevHash = prevHash;
     this.timestamp = timestamp;
@@ -29,8 +25,17 @@ class  Block {
       this.hash = this.calculateHash();
     }
     console.log('Block mined: ' + this.hash);
-
   }
+
+  hasValidTransaction() {
+    for(const trans of this.transaction) {
+      if(!trans.isValid) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }
 
 class Blockchain {
@@ -64,6 +69,16 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
+    if(!transaction.from || !transaction.to) {
+      console.log('transaction must have from & to.');
+      return;
+    }
+
+    if(!transaction.isValid()) {
+      console.log('can not add invalid into the chain.');
+      return;
+    }
+
     this.transactionQueue.push(transaction);
   }
 
@@ -90,9 +105,15 @@ class Blockchain {
       let currentBlock = this.chain[i];
       let prevBlock = this.chain[i - 1];
 
+      // check if the block has valid transaction
+      if(!currentBlock.hasValidTransaction()) {
+        console.log('warning! the block (' + i + ') has no valid transaction.');
+        return false;
+      }
+
       // rehash it to specify if it is being changed.
       if(currentBlock.calculateHash() !== currentBlock.hash) {
-        console.log('warning! The block(' + i + ') has been changed.');
+        console.log('warning! the block(' + i + ') has been changed.');
         return false
       };
 
@@ -111,7 +132,7 @@ class Blockchain {
     }
     return true;
   }
+
 }
 
 module.exports.Blockchain = Blockchain;
-module.exports.Transaction = Transaction;

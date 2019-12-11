@@ -11,4 +11,5 @@ const trans = new Transaction(walletAddress, 'public address', 20);
 trans.signTransaction(myKey);
 beccaChain.addTransaction(trans);
 
-console.log("Start the miner...");
+beccaChain.chain[1].transaction[0].amount = 1;
+console.log('Is chain valid? ' + beccaChain.isChainValid());

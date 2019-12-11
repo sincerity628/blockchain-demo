@@ -12,3 +12,8 @@ trans.signTransaction(myKey);
 beccaChain.addTransaction(trans);
 
 console.log("Start the miner...");
+beccaChain.mineTheTransactionQueue(walletAddress);
+beccaChain.mineTheTransactionQueue(walletAddress);
+console.log('The award of Xu is: ' + beccaChain.getBalence(walletAddress) + '.');
+
+console.log(JSON.stringify(beccaChain, null, 3));
